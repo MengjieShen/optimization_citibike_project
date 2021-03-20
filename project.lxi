@@ -1,0 +1,32 @@
+B 3 C o m p i l a t i o n
+B 105 Equation Listing    SOLVE travel_distance Using MIP From line 66
+D 108 distance
+D 203 c1
+D 238 c2
+D 261 c3
+D 284 c4
+D 295 c5
+D 306 c6
+D 317 c7
+B 329 Column Listing      SOLVE travel_distance Using MIP From line 66
+E 332 x
+E 356 q
+E 376 u
+E 497 z
+B 505 Model Statistics    SOLVE travel_distance Using MIP From line 66
+B 521 Solution Report     SOLVE travel_distance Using MIP From line 66
+F 560 distance
+F 564 c1
+F 579 c2
+F 594 c3
+F 609 c4
+F 714 c5
+F 800 c6
+F 895 c7
+G 990 x
+G 1095 q
+G 1200 u
+G 1216 z
+B 1226 E x e c u t i o n
+I 1226 x
+I 1247 z

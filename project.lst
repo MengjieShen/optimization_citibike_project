@@ -1,0 +1,1262 @@
+GAMS 30.1.0  re01a340 Released Jan 10, 2020 WEX-WEI x86 64bit/MS Windows 05/09/20 21:53:37 Page 1
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+C o m p i l a t i o n
+
+
+   1  Sets
+   2           i       clusters of stations    /node1*node10 /;
+   3  Alias (i,j)
+   4   
+   5  Parameters
+   6   
+   7           d(i) demands for each cluster
+   8           /       node1   -4
+   9                   node2   10
+  10                   node3   3
+  11                   node4   2
+  12                   node5   -8
+  13                   node6   5
+  14                   node7   -10
+  15                   node8   2
+  16                   node9   -1
+  17                   node10  1/;
+  18   
+  19  Table w(i,j) distance between bike stations v(i) and v(j)
+  20   
+  21   
+  22   
+  23           node1           node2           node3           node4           n
+      ode5           node6           node7           node8           node9      
+           node10
+  24  node1    0.         0.01740656         0.02803472      0.02564747        0
+      .01430677      0.03113276      0.02066321      0.01795033      0.01961556 
+           0.03876175
+  25  node2  0.01740656   0.                 0.01582217      0.01404104        0
+      .02275546      0.01460469      0.01709441      0.00701318      0.03442013 
+           0.02341575
+  26  node3  0.02803472   0.01582217         0.              0.02771651        0
+      .02437968      0.02190971      0.01169642      0.02259806      0.03837457 
+           0.01202611
+  27  node4  0.02564747   0.01404104         0.02771651      0.                0
+      .0354326       0.01078307      0.03112872      0.00831374      0.04501595 
+           0.03082944
+  28  node5  0.01430677   0.02275546         0.02437968      0.0354326         0
+      .              0.03716745      0.01303437      0.02712287      0.0140105  
+           0.03640369
+  29  node6  0.03113276   0.01460469         0.02190971      0.01078307        0
+      .03716745      0.              0.0291344       0.01387568      0.04899975 
+           0.02148753
+  30  node7  0.02066321   0.01709441         0.01169642      0.03112872        0
+      .01303437      0.0291344       0.              0.0236926       0.02701077 
+           0.02365105
+  31  node8  0.01795033   0.00701318         0.02259806      0.00831374        0
+      .02712287      0.01387568      0.0236926       0.              0.03696844 
+           0.02873597
+  32  node9  0.01961556   0.03442013         0.03837457      0.04501595        0
+      .0140105       0.04899975      0.02701077      0.03696844      0.         
+           0.05039163
+  33  node10 0.03876175   0.02341575         0.01202611      0.03082944        0
+      .03640369      0.02148753      0.02365105      0.02873597      0.05039163 
+           0.
+  34   
+  35   
+  36  scalar C capacity for vheicle    /12/;
+  37   
+  38  variable x(i,j)  whether there are bikes transfered from i to j
+  39           q(i,j)  quantity of bikes transfered from i to j
+  40           u(i)    MTZ subtour elimination
+  41           z       total travel distance;
+  42   
+  43  binary variable x;
+  44  positive variable q,u;
+  45  Equations
+  46           distance        define objective fuction
+  47           c1(i)     make sure rebalanced
+  48           c2(i) make sure enter only once
+  49           c3(i) make sure exit only once
+  50           c4(i,j)   make sure under vheicle capacity
+  51           c5   MTZ subtour elimination_1
+  52           c6   MTZ subtour elimination_2
+  53           c7   MTZ subtour elimination_3;
+  54   
+  55  distance..   z=e=sum((i,j),w(i,j)*x(i,j));
+  56  c1(i)..      sum(j,q(i,j))-sum(j,q(j,i)) =e= d(i);
+  57  c2(i)..      sum(j,x(i,j))=e= 1;
+  58  c3(i)..      sum(j,x(j,i))=e= 1;
+  59  c4(i,j)..    q(i,j) =l= C*x(i,j);
+  60  c5(i,j)$(ord(i)>1 and ord(j)>1)..        u(i)-u(j)+10*x(i,j) =l=9;
+  61  c6(i,j)$(ord(i)>1)..     u(i)=l=9;
+  62  c7(i,j)$(ord(i)>1)..     u(i)=g=1;
+  63   
+  64  Model travel_distance /all/;
+  65  option MIP = Cplex;
+  66  Solve travel_distance using MIP minimizing z;
+  67  Display x.l, z.l;
+  68   
+  69   
+  70   
+  71   
+  72   
+
+
+COMPILATION TIME     =        0.031 SECONDS      3 MB  30.1.0 re01a340 WEX-WEI
+GAMS 30.1.0  re01a340 Released Jan 10, 2020 WEX-WEI x86 64bit/MS Windows 05/09/20 21:53:37 Page 2
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Equation Listing    SOLVE travel_distance Using MIP From line 66
+
+
+---- distance  =E=  define objective fuction
+
+distance..  - 0.01740656*x(node1,node2) - 0.02803472*x(node1,node3)
+     
+      - 0.02564747*x(node1,node4) - 0.01430677*x(node1,node5)
+     
+      - 0.03113276*x(node1,node6) - 0.02066321*x(node1,node7)
+     
+      - 0.01795033*x(node1,node8) - 0.01961556*x(node1,node9)
+     
+      - 0.03876175*x(node1,node10) - 0.01740656*x(node2,node1)
+     
+      - 0.01582217*x(node2,node3) - 0.01404104*x(node2,node4)
+     
+      - 0.02275546*x(node2,node5) - 0.01460469*x(node2,node6)
+     
+      - 0.01709441*x(node2,node7) - 0.00701318*x(node2,node8)
+     
+      - 0.03442013*x(node2,node9) - 0.02341575*x(node2,node10)
+     
+      - 0.02803472*x(node3,node1) - 0.01582217*x(node3,node2)
+     
+      - 0.02771651*x(node3,node4) - 0.02437968*x(node3,node5)
+     
+      - 0.02190971*x(node3,node6) - 0.01169642*x(node3,node7)
+     
+      - 0.02259806*x(node3,node8) - 0.03837457*x(node3,node9)
+     
+      - 0.01202611*x(node3,node10) - 0.02564747*x(node4,node1)
+     
+      - 0.01404104*x(node4,node2) - 0.02771651*x(node4,node3)
+     
+      - 0.0354326*x(node4,node5) - 0.01078307*x(node4,node6)
+     
+      - 0.03112872*x(node4,node7) - 0.00831374*x(node4,node8)
+     
+      - 0.04501595*x(node4,node9) - 0.03082944*x(node4,node10)
+     
+      - 0.01430677*x(node5,node1) - 0.02275546*x(node5,node2)
+     
+      - 0.02437968*x(node5,node3) - 0.0354326*x(node5,node4)
+     
+      - 0.03716745*x(node5,node6) - 0.01303437*x(node5,node7)
+     
+      - 0.02712287*x(node5,node8) - 0.0140105*x(node5,node9)
+     
+      - 0.03640369*x(node5,node10) - 0.03113276*x(node6,node1)
+     
+      - 0.01460469*x(node6,node2) - 0.02190971*x(node6,node3)
+     
+      - 0.01078307*x(node6,node4) - 0.03716745*x(node6,node5)
+     
+      - 0.0291344*x(node6,node7) - 0.01387568*x(node6,node8)
+     
+      - 0.04899975*x(node6,node9) - 0.02148753*x(node6,node10)
+     
+      - 0.02066321*x(node7,node1) - 0.01709441*x(node7,node2)
+     
+      - 0.01169642*x(node7,node3) - 0.03112872*x(node7,node4)
+     
+      - 0.01303437*x(node7,node5) - 0.0291344*x(node7,node6)
+     
+      - 0.0236926*x(node7,node8) - 0.02701077*x(node7,node9)
+     
+      - 0.02365105*x(node7,node10) - 0.01795033*x(node8,node1)
+     
+      - 0.00701318*x(node8,node2) - 0.02259806*x(node8,node3)
+     
+      - 0.00831374*x(node8,node4) - 0.02712287*x(node8,node5)
+     
+      - 0.01387568*x(node8,node6) - 0.0236926*x(node8,node7)
+     
+      - 0.03696844*x(node8,node9) - 0.02873597*x(node8,node10)
+     
+      - 0.01961556*x(node9,node1) - 0.03442013*x(node9,node2)
+     
+      - 0.03837457*x(node9,node3) - 0.04501595*x(node9,node4)
+     
+      - 0.0140105*x(node9,node5) - 0.04899975*x(node9,node6)
+     
+      - 0.02701077*x(node9,node7) - 0.03696844*x(node9,node8)
+     
+      - 0.05039163*x(node9,node10) - 0.03876175*x(node10,node1)
+     
+      - 0.02341575*x(node10,node2) - 0.01202611*x(node10,node3)
+     
+      - 0.03082944*x(node10,node4) - 0.03640369*x(node10,node5)
+     
+      - 0.02148753*x(node10,node6) - 0.02365105*x(node10,node7)
+     
+      - 0.02873597*x(node10,node8) - 0.05039163*x(node10,node9) + z =E= 0 ;
+     
+      (LHS = 0)
+     
+
+---- c1  =E=  make sure rebalanced
+
+c1(node1)..  q(node1,node2) + q(node1,node3) + q(node1,node4) + q(node1,node5)
+     
+      + q(node1,node6) + q(node1,node7) + q(node1,node8) + q(node1,node9)
+     
+      + q(node1,node10) - q(node2,node1) - q(node3,node1) - q(node4,node1)
+     
+      - q(node5,node1) - q(node6,node1) - q(node7,node1) - q(node8,node1)
+     
+      - q(node9,node1) - q(node10,node1) =E= -4 ; (LHS = 0, INFES = 4 ****)
+     
+c1(node2)..  - q(node1,node2) + q(node2,node1) + q(node2,node3) + q(node2,node4)
+     
+      + q(node2,node5) + q(node2,node6) + q(node2,node7) + q(node2,node8)
+     
+      + q(node2,node9) + q(node2,node10) - q(node3,node2) - q(node4,node2)
+     
+      - q(node5,node2) - q(node6,node2) - q(node7,node2) - q(node8,node2)
+     
+      - q(node9,node2) - q(node10,node2) =E= 10 ; (LHS = 0, INFES = 10 ****)
+     
+c1(node3)..  - q(node1,node3) - q(node2,node3) + q(node3,node1) + q(node3,node2)
+     
+      + q(node3,node4) + q(node3,node5) + q(node3,node6) + q(node3,node7)
+     
+      + q(node3,node8) + q(node3,node9) + q(node3,node10) - q(node4,node3)
+     
+      - q(node5,node3) - q(node6,node3) - q(node7,node3) - q(node8,node3)
+     
+      - q(node9,node3) - q(node10,node3) =E= 3 ; (LHS = 0, INFES = 3 ****)
+     
+REMAINING 7 ENTRIES SKIPPED
+
+
+---- c2  =E=  make sure enter only once
+
+c2(node1)..  x(node1,node1) + x(node1,node2) + x(node1,node3) + x(node1,node4)
+     
+      + x(node1,node5) + x(node1,node6) + x(node1,node7) + x(node1,node8)
+     
+      + x(node1,node9) + x(node1,node10) =E= 1 ; (LHS = 0, INFES = 1 ****)
+     
+c2(node2)..  x(node2,node1) + x(node2,node2) + x(node2,node3) + x(node2,node4)
+     
+      + x(node2,node5) + x(node2,node6) + x(node2,node7) + x(node2,node8)
+     
+      + x(node2,node9) + x(node2,node10) =E= 1 ; (LHS = 0, INFES = 1 ****)
+     
+c2(node3)..  x(node3,node1) + x(node3,node2) + x(node3,node3) + x(node3,node4)
+     
+      + x(node3,node5) + x(node3,node6) + x(node3,node7) + x(node3,node8)
+     
+      + x(node3,node9) + x(node3,node10) =E= 1 ; (LHS = 0, INFES = 1 ****)
+     
+REMAINING 7 ENTRIES SKIPPED
+
+
+---- c3  =E=  make sure exit only once
+
+c3(node1)..  x(node1,node1) + x(node2,node1) + x(node3,node1) + x(node4,node1)
+     
+      + x(node5,node1) + x(node6,node1) + x(node7,node1) + x(node8,node1)
+     
+      + x(node9,node1) + x(node10,node1) =E= 1 ; (LHS = 0, INFES = 1 ****)
+     
+c3(node2)..  x(node1,node2) + x(node2,node2) + x(node3,node2) + x(node4,node2)
+     
+      + x(node5,node2) + x(node6,node2) + x(node7,node2) + x(node8,node2)
+     
+      + x(node9,node2) + x(node10,node2) =E= 1 ; (LHS = 0, INFES = 1 ****)
+     
+c3(node3)..  x(node1,node3) + x(node2,node3) + x(node3,node3) + x(node4,node3)
+     
+      + x(node5,node3) + x(node6,node3) + x(node7,node3) + x(node8,node3)
+     
+      + x(node9,node3) + x(node10,node3) =E= 1 ; (LHS = 0, INFES = 1 ****)
+     
+REMAINING 7 ENTRIES SKIPPED
+
+
+---- c4  =L=  make sure under vheicle capacity
+
+c4(node1,node1)..  - 12*x(node1,node1) + q(node1,node1) =L= 0 ; (LHS = 0)
+     
+c4(node1,node2)..  - 12*x(node1,node2) + q(node1,node2) =L= 0 ; (LHS = 0)
+     
+c4(node1,node3)..  - 12*x(node1,node3) + q(node1,node3) =L= 0 ; (LHS = 0)
+     
+REMAINING 97 ENTRIES SKIPPED
+
+
+---- c5  =L=  MTZ subtour elimination_1
+
+c5(node2,node2)..  10*x(node2,node2) =L= 9 ; (LHS = 0)
+     
+c5(node2,node3)..  10*x(node2,node3) + u(node2) - u(node3) =L= 9 ; (LHS = 0)
+     
+c5(node2,node4)..  10*x(node2,node4) + u(node2) - u(node4) =L= 9 ; (LHS = 0)
+     
+REMAINING 78 ENTRIES SKIPPED
+
+
+---- c6  =L=  MTZ subtour elimination_2
+
+c6(node2,node1)..  u(node2) =L= 9 ; (LHS = 0)
+     
+c6(node2,node2)..  u(node2) =L= 9 ; (LHS = 0)
+     
+c6(node2,node3)..  u(node2) =L= 9 ; (LHS = 0)
+     
+REMAINING 87 ENTRIES SKIPPED
+
+
+---- c7  =G=  MTZ subtour elimination_3
+
+c7(node2,node1)..  u(node2) =G= 1 ; (LHS = 0, INFES = 1 ****)
+     
+c7(node2,node2)..  u(node2) =G= 1 ; (LHS = 0, INFES = 1 ****)
+     
+c7(node2,node3)..  u(node2) =G= 1 ; (LHS = 0, INFES = 1 ****)
+     
+REMAINING 87 ENTRIES SKIPPED
+
+GAMS 30.1.0  re01a340 Released Jan 10, 2020 WEX-WEI x86 64bit/MS Windows 05/09/20 21:53:37 Page 3
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Column Listing      SOLVE travel_distance Using MIP From line 66
+
+
+---- x  whether there are bikes transfered from i to j
+
+x(node1,node1)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+        1       c2(node1)
+        1       c3(node1)
+      -12       c4(node1,node1)
+
+x(node1,node2)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+       -0.0174  distance
+        1       c2(node1)
+        1       c3(node2)
+      -12       c4(node1,node2)
+
+x(node1,node3)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+       -0.028   distance
+        1       c2(node1)
+        1       c3(node3)
+      -12       c4(node1,node3)
+
+REMAINING 97 ENTRIES SKIPPED
+
+---- q  quantity of bikes transfered from i to j
+
+q(node1,node1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       c4(node1,node1)
+
+q(node1,node2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       c1(node1)
+       -1       c1(node2)
+        1       c4(node1,node2)
+
+q(node1,node3)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       c1(node1)
+       -1       c1(node3)
+        1       c4(node1,node3)
+
+REMAINING 97 ENTRIES SKIPPED
+
+---- u  MTZ subtour elimination
+
+u(node2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       c5(node2,node3)
+        1       c5(node2,node4)
+        1       c5(node2,node5)
+        1       c5(node2,node6)
+        1       c5(node2,node7)
+        1       c5(node2,node8)
+        1       c5(node2,node9)
+        1       c5(node2,node10)
+       -1       c5(node3,node2)
+       -1       c5(node4,node2)
+       -1       c5(node5,node2)
+       -1       c5(node6,node2)
+       -1       c5(node7,node2)
+       -1       c5(node8,node2)
+       -1       c5(node9,node2)
+       -1       c5(node10,node2)
+        1       c6(node2,node1)
+        1       c6(node2,node2)
+        1       c6(node2,node3)
+        1       c6(node2,node4)
+        1       c6(node2,node5)
+        1       c6(node2,node6)
+        1       c6(node2,node7)
+        1       c6(node2,node8)
+        1       c6(node2,node9)
+        1       c6(node2,node10)
+        1       c7(node2,node1)
+        1       c7(node2,node2)
+        1       c7(node2,node3)
+        1       c7(node2,node4)
+        1       c7(node2,node5)
+        1       c7(node2,node6)
+        1       c7(node2,node7)
+        1       c7(node2,node8)
+        1       c7(node2,node9)
+        1       c7(node2,node10)
+
+u(node3)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       c5(node2,node3)
+        1       c5(node3,node2)
+        1       c5(node3,node4)
+        1       c5(node3,node5)
+        1       c5(node3,node6)
+        1       c5(node3,node7)
+        1       c5(node3,node8)
+        1       c5(node3,node9)
+        1       c5(node3,node10)
+       -1       c5(node4,node3)
+       -1       c5(node5,node3)
+       -1       c5(node6,node3)
+       -1       c5(node7,node3)
+       -1       c5(node8,node3)
+       -1       c5(node9,node3)
+       -1       c5(node10,node3)
+        1       c6(node3,node1)
+        1       c6(node3,node2)
+        1       c6(node3,node3)
+        1       c6(node3,node4)
+        1       c6(node3,node5)
+        1       c6(node3,node6)
+        1       c6(node3,node7)
+        1       c6(node3,node8)
+        1       c6(node3,node9)
+        1       c6(node3,node10)
+        1       c7(node3,node1)
+        1       c7(node3,node2)
+        1       c7(node3,node3)
+        1       c7(node3,node4)
+        1       c7(node3,node5)
+        1       c7(node3,node6)
+        1       c7(node3,node7)
+        1       c7(node3,node8)
+        1       c7(node3,node9)
+        1       c7(node3,node10)
+
+u(node4)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       c5(node2,node4)
+       -1       c5(node3,node4)
+        1       c5(node4,node2)
+        1       c5(node4,node3)
+        1       c5(node4,node5)
+        1       c5(node4,node6)
+        1       c5(node4,node7)
+        1       c5(node4,node8)
+        1       c5(node4,node9)
+        1       c5(node4,node10)
+       -1       c5(node5,node4)
+       -1       c5(node6,node4)
+       -1       c5(node7,node4)
+       -1       c5(node8,node4)
+       -1       c5(node9,node4)
+       -1       c5(node10,node4)
+        1       c6(node4,node1)
+        1       c6(node4,node2)
+        1       c6(node4,node3)
+        1       c6(node4,node4)
+        1       c6(node4,node5)
+        1       c6(node4,node6)
+        1       c6(node4,node7)
+        1       c6(node4,node8)
+        1       c6(node4,node9)
+        1       c6(node4,node10)
+        1       c7(node4,node1)
+        1       c7(node4,node2)
+        1       c7(node4,node3)
+        1       c7(node4,node4)
+        1       c7(node4,node5)
+        1       c7(node4,node6)
+        1       c7(node4,node7)
+        1       c7(node4,node8)
+        1       c7(node4,node9)
+        1       c7(node4,node10)
+
+REMAINING 6 ENTRIES SKIPPED
+
+---- z  total travel distance
+
+z
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+        1       distance
+
+GAMS 30.1.0  re01a340 Released Jan 10, 2020 WEX-WEI x86 64bit/MS Windows 05/09/20 21:53:37 Page 4
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Model Statistics    SOLVE travel_distance Using MIP From line 66
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS           8     SINGLE EQUATIONS          392
+BLOCKS OF VARIABLES           4     SINGLE VARIABLES          210
+NON ZERO ELEMENTS         1,076     DISCRETE VARIABLES        100
+
+
+GENERATION TIME      =        0.281 SECONDS      4 MB  30.1.0 re01a340 WEX-WEI
+
+
+EXECUTION TIME       =        0.281 SECONDS      4 MB  30.1.0 re01a340 WEX-WEI
+GAMS 30.1.0  re01a340 Released Jan 10, 2020 WEX-WEI x86 64bit/MS Windows 05/09/20 21:53:37 Page 5
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Solution Report     SOLVE travel_distance Using MIP From line 66
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   travel_distance     OBJECTIVE  z
+     TYPE    MIP                 DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  66
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      8 Integer Solution          
+**** OBJECTIVE VALUE                0.1904
+
+ RESOURCE USAGE, LIMIT          0.234      1000.000
+ ITERATION COUNT, LIMIT       572    2000000000
+
+IBM ILOG CPLEX   30.1.0 re01a340 Released Jan 10, 2020 WEI x86 64bit/MS Window
+--- GAMS/Cplex Link licensed for continuous and discrete problems.
+Cplex 12.10.0.0
+
+Space for names approximately 0.01 Mb
+Use option 'names no' to turn use of names off
+MIP status(102): integer optimal, tolerance
+Cplex Time: 0.17sec (det. 39.23 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.02sec (det. 0.30 ticks)
+Solution satisfies tolerances.
+
+MIP Solution:            0.190420    (572 iterations, 0 nodes)
+Final Solve:             0.190420    (0 iterations)
+
+Best possible:           0.172705
+Absolute gap:            0.017715
+Relative gap:            0.093032
+
+
+                       LOWER     LEVEL     UPPER    MARGINAL
+
+---- EQU distance        .         .         .        1.000      
+
+  distance  define objective fuction
+
+---- EQU c1  make sure rebalanced
+
+          LOWER     LEVEL     UPPER    MARGINAL
+
+node1     -4.000    -4.000    -4.000      EPS       
+node2     10.000    10.000    10.000      EPS       
+node3      3.000     3.000     3.000      EPS       
+node4      2.000     2.000     2.000      EPS       
+node5     -8.000    -8.000    -8.000      EPS       
+node6      5.000     5.000     5.000      EPS       
+node7    -10.000   -10.000   -10.000      EPS       
+node8      2.000     2.000     2.000      EPS       
+node9     -1.000    -1.000    -1.000      EPS       
+node10     1.000     1.000     1.000      .         
+
+---- EQU c2  make sure enter only once
+
+          LOWER     LEVEL     UPPER    MARGINAL
+
+node1      1.000     1.000     1.000      .         
+node2      1.000     1.000     1.000      .         
+node3      1.000     1.000     1.000      .         
+node4      1.000     1.000     1.000      .         
+node5      1.000     1.000     1.000      .         
+node6      1.000     1.000     1.000      .         
+node7      1.000     1.000     1.000      .         
+node8      1.000     1.000     1.000      .         
+node9      1.000     1.000     1.000      .         
+node10     1.000     1.000     1.000      .         
+
+---- EQU c3  make sure exit only once
+
+          LOWER     LEVEL     UPPER    MARGINAL
+
+node1      1.000     1.000     1.000      .         
+node2      1.000     1.000     1.000      .         
+node3      1.000     1.000     1.000      .         
+node4      1.000     1.000     1.000      .         
+node5      1.000     1.000     1.000      .         
+node6      1.000     1.000     1.000      .         
+node7      1.000     1.000     1.000      .         
+node8      1.000     1.000     1.000      .         
+node9      1.000     1.000     1.000      .         
+node10     1.000     1.000     1.000      .         
+
+---- EQU c4  make sure under vheicle capacity
+
+                 LOWER     LEVEL     UPPER    MARGINAL
+
+node1 .node1      -INF       .         .         .         
+node1 .node2      -INF       .         .         .         
+node1 .node3      -INF       .         .         .         
+node1 .node4      -INF       .         .         .         
+node1 .node5      -INF       .         .         .         
+node1 .node6      -INF       .         .         .         
+node1 .node7      -INF       .         .         .         
+node1 .node8      -INF     -5.000      .         .         
+node1 .node9      -INF       .         .         .         
+node1 .node10     -INF       .         .         .         
+node2 .node1      -INF       .         .         .         
+node2 .node2      -INF       .         .         .         
+node2 .node3      -INF       .         .         .         
+node2 .node4      -INF       .         .         .         
+node2 .node5      -INF       .         .         .         
+node2 .node6      -INF       .         .         .         
+node2 .node7      -INF     -2.000      .         .         
+node2 .node8      -INF       .         .         .         
+node2 .node9      -INF       .         .         .         
+node2 .node10     -INF       .         .         .         
+node3 .node1      -INF       .         .         .         
+node3 .node2      -INF       .         .         .         
+node3 .node3      -INF       .         .         .         
+node3 .node4      -INF       .         .         .         
+node3 .node5      -INF       .         .         .         
+node3 .node6      -INF       .         .         .         
+node3 .node7      -INF       .         .         .         
+node3 .node8      -INF       .         .         .         
+node3 .node9      -INF       .         .         .         
+node3 .node10     -INF     -9.000      .         .         
+node4 .node1      -INF     -1.000      .         .         
+node4 .node2      -INF       .         .         .         
+node4 .node3      -INF       .         .         .         
+node4 .node4      -INF       .         .         .         
+node4 .node5      -INF       .         .         .         
+node4 .node6      -INF       .         .         .         
+node4 .node7      -INF       .         .         .         
+node4 .node8      -INF       .         .         .         
+node4 .node9      -INF       .         .         .         
+node4 .node10     -INF       .         .         .         
+node5 .node1      -INF       .         .         .         
+node5 .node2      -INF    -12.000      .         .         
+node5 .node3      -INF       .         .         .         
+node5 .node4      -INF       .         .         .         
+node5 .node5      -INF       .         .         .         
+node5 .node6      -INF       .         .         .         
+node5 .node7      -INF       .         .         .         
+node5 .node8      -INF       .         .         .         
+node5 .node9      -INF       .         .         .         
+node5 .node10     -INF       .         .         .         
+node6 .node1      -INF       .         .         .         
+node6 .node2      -INF       .         .         .         
+node6 .node3      -INF       .         .         .         
+node6 .node4      -INF     -3.000      .         .         
+node6 .node5      -INF       .         .         .         
+node6 .node6      -INF       .         .         .         
+node6 .node7      -INF       .         .         .         
+node6 .node8      -INF       .         .         .         
+node6 .node9      -INF       .         .         .         
+node6 .node10     -INF       .         .         .         
+node7 .node1      -INF       .         .         .         
+node7 .node2      -INF       .         .         .         
+node7 .node3      -INF    -12.000      .         .         
+node7 .node4      -INF       .         .         .         
+node7 .node5      -INF       .         .         .         
+node7 .node6      -INF       .         .         .         
+node7 .node7      -INF       .         .         .         
+node7 .node8      -INF       .         .         .         
+node7 .node9      -INF       .         .         .         
+node7 .node10     -INF       .         .         .         
+node8 .node1      -INF       .         .         .         
+node8 .node2      -INF       .         .         .         
+node8 .node3      -INF       .         .         .         
+node8 .node4      -INF       .         .         .         
+node8 .node5      -INF       .         .         .         
+node8 .node6      -INF       .         .         .         
+node8 .node7      -INF       .         .         .         
+node8 .node8      -INF       .         .         .         
+node8 .node9      -INF     -3.000      .         .         
+node8 .node10     -INF       .         .         .         
+node9 .node1      -INF       .         .         .         
+node9 .node2      -INF       .         .         .         
+node9 .node3      -INF       .         .         .         
+node9 .node4      -INF       .         .         .         
+node9 .node5      -INF     -4.000      .         .         
+node9 .node6      -INF       .         .         .         
+node9 .node7      -INF       .         .         .         
+node9 .node8      -INF       .         .         .         
+node9 .node9      -INF       .         .         .         
+node9 .node10     -INF       .         .         .         
+node10.node1      -INF       .         .         .         
+node10.node2      -INF       .         .         .         
+node10.node3      -INF       .         .         .         
+node10.node4      -INF       .         .         .         
+node10.node5      -INF       .         .         .         
+node10.node6      -INF     -8.000      .         .         
+node10.node7      -INF       .         .         .         
+node10.node8      -INF       .         .         .         
+node10.node9      -INF       .         .         .         
+node10.node10     -INF       .         .         .         
+
+---- EQU c5  MTZ subtour elimination_1
+
+                 LOWER     LEVEL     UPPER    MARGINAL
+
+node2 .node2      -INF       .        9.000      .         
+node2 .node3      -INF     -2.000     9.000      .         
+node2 .node4      -INF     -5.000     9.000      .         
+node2 .node5      -INF      1.000     9.000      .         
+node2 .node6      -INF     -4.000     9.000      .         
+node2 .node7      -INF      9.000     9.000      EPS       
+node2 .node8      -INF      3.000     9.000      .         
+node2 .node9      -INF      2.000     9.000      .         
+node2 .node10     -INF     -3.000     9.000      .         
+node3 .node2      -INF      2.000     9.000      .         
+node3 .node3      -INF       .        9.000      .         
+node3 .node4      -INF     -3.000     9.000      .         
+node3 .node5      -INF      3.000     9.000      .         
+node3 .node6      -INF     -2.000     9.000      .         
+node3 .node7      -INF      1.000     9.000      .         
+node3 .node8      -INF      5.000     9.000      .         
+node3 .node9      -INF      4.000     9.000      .         
+node3 .node10     -INF      9.000     9.000      EPS       
+node4 .node2      -INF      5.000     9.000      .         
+node4 .node3      -INF      3.000     9.000      .         
+node4 .node4      -INF       .        9.000      .         
+node4 .node5      -INF      6.000     9.000      .         
+node4 .node6      -INF      1.000     9.000      .         
+node4 .node7      -INF      4.000     9.000      .         
+node4 .node8      -INF      8.000     9.000      .         
+node4 .node9      -INF      7.000     9.000      .         
+node4 .node10     -INF      2.000     9.000      .         
+node5 .node2      -INF      9.000     9.000      EPS       
+node5 .node3      -INF     -3.000     9.000      .         
+node5 .node4      -INF     -6.000     9.000      .         
+node5 .node5      -INF       .        9.000      .         
+node5 .node6      -INF     -5.000     9.000      .         
+node5 .node7      -INF     -2.000     9.000      .         
+node5 .node8      -INF      2.000     9.000      .         
+node5 .node9      -INF      1.000     9.000      .         
+node5 .node10     -INF     -4.000     9.000      .         
+node6 .node2      -INF      4.000     9.000      .         
+node6 .node3      -INF      2.000     9.000      .         
+node6 .node4      -INF      9.000     9.000      EPS       
+node6 .node5      -INF      5.000     9.000      .         
+node6 .node6      -INF       .        9.000      .         
+node6 .node7      -INF      3.000     9.000      .         
+node6 .node8      -INF      7.000     9.000      .         
+node6 .node9      -INF      6.000     9.000      .         
+node6 .node10     -INF      1.000     9.000      .         
+node7 .node2      -INF      1.000     9.000      .         
+node7 .node3      -INF      9.000     9.000      .         
+node7 .node4      -INF     -4.000     9.000      .         
+node7 .node5      -INF      2.000     9.000      .         
+node7 .node6      -INF     -3.000     9.000      .         
+node7 .node7      -INF       .        9.000      .         
+node7 .node8      -INF      4.000     9.000      .         
+node7 .node9      -INF      3.000     9.000      .         
+node7 .node10     -INF     -2.000     9.000      .         
+node8 .node2      -INF     -3.000     9.000      .         
+node8 .node3      -INF     -5.000     9.000      .         
+node8 .node4      -INF     -8.000     9.000      .         
+node8 .node5      -INF     -2.000     9.000      .         
+node8 .node6      -INF     -7.000     9.000      .         
+node8 .node7      -INF     -4.000     9.000      .         
+node8 .node8      -INF       .        9.000      .         
+node8 .node9      -INF      9.000     9.000      EPS       
+node8 .node10     -INF     -6.000     9.000      .         
+node9 .node2      -INF     -2.000     9.000      .         
+node9 .node3      -INF     -4.000     9.000      .         
+node9 .node4      -INF     -7.000     9.000      .         
+node9 .node5      -INF      9.000     9.000      EPS       
+node9 .node6      -INF     -6.000     9.000      .         
+node9 .node7      -INF     -3.000     9.000      .         
+node9 .node8      -INF      1.000     9.000      .         
+node9 .node9      -INF       .        9.000      .         
+node9 .node10     -INF     -5.000     9.000      .         
+node10.node2      -INF      3.000     9.000      .         
+node10.node3      -INF      1.000     9.000      .         
+node10.node4      -INF     -2.000     9.000      .         
+node10.node5      -INF      4.000     9.000      .         
+node10.node6      -INF      9.000     9.000      EPS       
+node10.node7      -INF      2.000     9.000      .         
+node10.node8      -INF      6.000     9.000      .         
+node10.node9      -INF      5.000     9.000      .         
+node10.node10     -INF       .        9.000      .         
+
+---- EQU c6  MTZ subtour elimination_2
+
+                 LOWER     LEVEL     UPPER    MARGINAL
+
+node2 .node1      -INF      4.000     9.000      .         
+node2 .node2      -INF      4.000     9.000      .         
+node2 .node3      -INF      4.000     9.000      .         
+node2 .node4      -INF      4.000     9.000      .         
+node2 .node5      -INF      4.000     9.000      .         
+node2 .node6      -INF      4.000     9.000      .         
+node2 .node7      -INF      4.000     9.000      .         
+node2 .node8      -INF      4.000     9.000      .         
+node2 .node9      -INF      4.000     9.000      .         
+node2 .node10     -INF      4.000     9.000      .         
+node3 .node1      -INF      6.000     9.000      .         
+node3 .node2      -INF      6.000     9.000      .         
+node3 .node3      -INF      6.000     9.000      .         
+node3 .node4      -INF      6.000     9.000      .         
+node3 .node5      -INF      6.000     9.000      .         
+node3 .node6      -INF      6.000     9.000      .         
+node3 .node7      -INF      6.000     9.000      .         
+node3 .node8      -INF      6.000     9.000      .         
+node3 .node9      -INF      6.000     9.000      .         
+node3 .node10     -INF      6.000     9.000      .         
+node4 .node1      -INF      9.000     9.000      EPS       
+node4 .node2      -INF      9.000     9.000      .         
+node4 .node3      -INF      9.000     9.000      .         
+node4 .node4      -INF      9.000     9.000      .         
+node4 .node5      -INF      9.000     9.000      .         
+node4 .node6      -INF      9.000     9.000      .         
+node4 .node7      -INF      9.000     9.000      .         
+node4 .node8      -INF      9.000     9.000      .         
+node4 .node9      -INF      9.000     9.000      .         
+node4 .node10     -INF      9.000     9.000      .         
+node5 .node1      -INF      3.000     9.000      .         
+node5 .node2      -INF      3.000     9.000      .         
+node5 .node3      -INF      3.000     9.000      .         
+node5 .node4      -INF      3.000     9.000      .         
+node5 .node5      -INF      3.000     9.000      .         
+node5 .node6      -INF      3.000     9.000      .         
+node5 .node7      -INF      3.000     9.000      .         
+node5 .node8      -INF      3.000     9.000      .         
+node5 .node9      -INF      3.000     9.000      .         
+node5 .node10     -INF      3.000     9.000      .         
+node6 .node1      -INF      8.000     9.000      .         
+node6 .node2      -INF      8.000     9.000      .         
+node6 .node3      -INF      8.000     9.000      .         
+node6 .node4      -INF      8.000     9.000      .         
+node6 .node5      -INF      8.000     9.000      .         
+node6 .node6      -INF      8.000     9.000      .         
+node6 .node7      -INF      8.000     9.000      .         
+node6 .node8      -INF      8.000     9.000      .         
+node6 .node9      -INF      8.000     9.000      .         
+node6 .node10     -INF      8.000     9.000      .         
+node7 .node1      -INF      5.000     9.000      .         
+node7 .node2      -INF      5.000     9.000      .         
+node7 .node3      -INF      5.000     9.000      .         
+node7 .node4      -INF      5.000     9.000      .         
+node7 .node5      -INF      5.000     9.000      .         
+node7 .node6      -INF      5.000     9.000      .         
+node7 .node7      -INF      5.000     9.000      .         
+node7 .node8      -INF      5.000     9.000      .         
+node7 .node9      -INF      5.000     9.000      .         
+node7 .node10     -INF      5.000     9.000      .         
+node8 .node1      -INF      1.000     9.000      .         
+node8 .node2      -INF      1.000     9.000      .         
+node8 .node3      -INF      1.000     9.000      .         
+node8 .node4      -INF      1.000     9.000      .         
+node8 .node5      -INF      1.000     9.000      .         
+node8 .node6      -INF      1.000     9.000      .         
+node8 .node7      -INF      1.000     9.000      .         
+node8 .node8      -INF      1.000     9.000      .         
+node8 .node9      -INF      1.000     9.000      .         
+node8 .node10     -INF      1.000     9.000      .         
+node9 .node1      -INF      2.000     9.000      .         
+node9 .node2      -INF      2.000     9.000      .         
+node9 .node3      -INF      2.000     9.000      .         
+node9 .node4      -INF      2.000     9.000      .         
+node9 .node5      -INF      2.000     9.000      .         
+node9 .node6      -INF      2.000     9.000      .         
+node9 .node7      -INF      2.000     9.000      .         
+node9 .node8      -INF      2.000     9.000      .         
+node9 .node9      -INF      2.000     9.000      .         
+node9 .node10     -INF      2.000     9.000      .         
+node10.node1      -INF      7.000     9.000      .         
+node10.node2      -INF      7.000     9.000      .         
+node10.node3      -INF      7.000     9.000      .         
+node10.node4      -INF      7.000     9.000      .         
+node10.node5      -INF      7.000     9.000      .         
+node10.node6      -INF      7.000     9.000      .         
+node10.node7      -INF      7.000     9.000      .         
+node10.node8      -INF      7.000     9.000      .         
+node10.node9      -INF      7.000     9.000      .         
+node10.node10     -INF      7.000     9.000      .         
+
+---- EQU c7  MTZ subtour elimination_3
+
+                 LOWER     LEVEL     UPPER    MARGINAL
+
+node2 .node1      1.000     4.000     +INF       .         
+node2 .node2      1.000     4.000     +INF       .         
+node2 .node3      1.000     4.000     +INF       .         
+node2 .node4      1.000     4.000     +INF       .         
+node2 .node5      1.000     4.000     +INF       .         
+node2 .node6      1.000     4.000     +INF       .         
+node2 .node7      1.000     4.000     +INF       .         
+node2 .node8      1.000     4.000     +INF       .         
+node2 .node9      1.000     4.000     +INF       .         
+node2 .node10     1.000     4.000     +INF       .         
+node3 .node1      1.000     6.000     +INF       .         
+node3 .node2      1.000     6.000     +INF       .         
+node3 .node3      1.000     6.000     +INF       .         
+node3 .node4      1.000     6.000     +INF       .         
+node3 .node5      1.000     6.000     +INF       .         
+node3 .node6      1.000     6.000     +INF       .         
+node3 .node7      1.000     6.000     +INF       .         
+node3 .node8      1.000     6.000     +INF       .         
+node3 .node9      1.000     6.000     +INF       .         
+node3 .node10     1.000     6.000     +INF       .         
+node4 .node1      1.000     9.000     +INF       .         
+node4 .node2      1.000     9.000     +INF       .         
+node4 .node3      1.000     9.000     +INF       .         
+node4 .node4      1.000     9.000     +INF       .         
+node4 .node5      1.000     9.000     +INF       .         
+node4 .node6      1.000     9.000     +INF       .         
+node4 .node7      1.000     9.000     +INF       .         
+node4 .node8      1.000     9.000     +INF       .         
+node4 .node9      1.000     9.000     +INF       .         
+node4 .node10     1.000     9.000     +INF       .         
+node5 .node1      1.000     3.000     +INF       .         
+node5 .node2      1.000     3.000     +INF       .         
+node5 .node3      1.000     3.000     +INF       .         
+node5 .node4      1.000     3.000     +INF       .         
+node5 .node5      1.000     3.000     +INF       .         
+node5 .node6      1.000     3.000     +INF       .         
+node5 .node7      1.000     3.000     +INF       .         
+node5 .node8      1.000     3.000     +INF       .         
+node5 .node9      1.000     3.000     +INF       .         
+node5 .node10     1.000     3.000     +INF       .         
+node6 .node1      1.000     8.000     +INF       .         
+node6 .node2      1.000     8.000     +INF       .         
+node6 .node3      1.000     8.000     +INF       .         
+node6 .node4      1.000     8.000     +INF       .         
+node6 .node5      1.000     8.000     +INF       .         
+node6 .node6      1.000     8.000     +INF       .         
+node6 .node7      1.000     8.000     +INF       .         
+node6 .node8      1.000     8.000     +INF       .         
+node6 .node9      1.000     8.000     +INF       .         
+node6 .node10     1.000     8.000     +INF       .         
+node7 .node1      1.000     5.000     +INF       .         
+node7 .node2      1.000     5.000     +INF       .         
+node7 .node3      1.000     5.000     +INF       .         
+node7 .node4      1.000     5.000     +INF       .         
+node7 .node5      1.000     5.000     +INF       .         
+node7 .node6      1.000     5.000     +INF       .         
+node7 .node7      1.000     5.000     +INF       .         
+node7 .node8      1.000     5.000     +INF       .         
+node7 .node9      1.000     5.000     +INF       .         
+node7 .node10     1.000     5.000     +INF       .         
+node8 .node1      1.000     1.000     +INF       EPS       
+node8 .node2      1.000     1.000     +INF       .         
+node8 .node3      1.000     1.000     +INF       .         
+node8 .node4      1.000     1.000     +INF       .         
+node8 .node5      1.000     1.000     +INF       .         
+node8 .node6      1.000     1.000     +INF       .         
+node8 .node7      1.000     1.000     +INF       .         
+node8 .node8      1.000     1.000     +INF       .         
+node8 .node9      1.000     1.000     +INF       .         
+node8 .node10     1.000     1.000     +INF       .         
+node9 .node1      1.000     2.000     +INF       .         
+node9 .node2      1.000     2.000     +INF       .         
+node9 .node3      1.000     2.000     +INF       .         
+node9 .node4      1.000     2.000     +INF       .         
+node9 .node5      1.000     2.000     +INF       .         
+node9 .node6      1.000     2.000     +INF       .         
+node9 .node7      1.000     2.000     +INF       .         
+node9 .node8      1.000     2.000     +INF       .         
+node9 .node9      1.000     2.000     +INF       .         
+node9 .node10     1.000     2.000     +INF       .         
+node10.node1      1.000     7.000     +INF       .         
+node10.node2      1.000     7.000     +INF       .         
+node10.node3      1.000     7.000     +INF       .         
+node10.node4      1.000     7.000     +INF       .         
+node10.node5      1.000     7.000     +INF       .         
+node10.node6      1.000     7.000     +INF       .         
+node10.node7      1.000     7.000     +INF       .         
+node10.node8      1.000     7.000     +INF       .         
+node10.node9      1.000     7.000     +INF       .         
+node10.node10     1.000     7.000     +INF       .         
+
+---- VAR x  whether there are bikes transfered from i to j
+
+                 LOWER     LEVEL     UPPER    MARGINAL
+
+node1 .node1       .         .        1.000      EPS       
+node1 .node2       .         .        1.000     0.017      
+node1 .node3       .         .        1.000     0.028      
+node1 .node4       .         .        1.000     0.026      
+node1 .node5       .         .        1.000     0.014      
+node1 .node6       .         .        1.000     0.031      
+node1 .node7       .         .        1.000     0.021      
+node1 .node8       .        1.000     1.000     0.018      
+node1 .node9       .         .        1.000     0.020      
+node1 .node10      .         .        1.000     0.039      
+node2 .node1       .         .        1.000     0.017      
+node2 .node2       .         .        1.000      EPS       
+node2 .node3       .         .        1.000     0.016      
+node2 .node4       .         .        1.000     0.014      
+node2 .node5       .         .        1.000     0.023      
+node2 .node6       .         .        1.000     0.015      
+node2 .node7       .        1.000     1.000     0.017      
+node2 .node8       .         .        1.000     0.007      
+node2 .node9       .         .        1.000     0.034      
+node2 .node10      .         .        1.000     0.023      
+node3 .node1       .         .        1.000     0.028      
+node3 .node2       .         .        1.000     0.016      
+node3 .node3       .         .        1.000      EPS       
+node3 .node4       .         .        1.000     0.028      
+node3 .node5       .         .        1.000     0.024      
+node3 .node6       .         .        1.000     0.022      
+node3 .node7       .         .        1.000     0.012      
+node3 .node8       .         .        1.000     0.023      
+node3 .node9       .         .        1.000     0.038      
+node3 .node10      .        1.000     1.000     0.012      
+node4 .node1       .        1.000     1.000     0.026      
+node4 .node2       .         .        1.000     0.014      
+node4 .node3       .         .        1.000     0.028      
+node4 .node4       .         .        1.000      EPS       
+node4 .node5       .         .        1.000     0.035      
+node4 .node6       .         .        1.000     0.011      
+node4 .node7       .         .        1.000     0.031      
+node4 .node8       .         .        1.000     0.008      
+node4 .node9       .         .        1.000     0.045      
+node4 .node10      .         .        1.000     0.031      
+node5 .node1       .         .        1.000     0.014      
+node5 .node2       .        1.000     1.000     0.023      
+node5 .node3       .         .        1.000     0.024      
+node5 .node4       .         .        1.000     0.035      
+node5 .node5       .         .        1.000      EPS       
+node5 .node6       .         .        1.000     0.037      
+node5 .node7       .         .        1.000     0.013      
+node5 .node8       .         .        1.000     0.027      
+node5 .node9       .         .        1.000     0.014      
+node5 .node10      .         .        1.000     0.036      
+node6 .node1       .         .        1.000     0.031      
+node6 .node2       .         .        1.000     0.015      
+node6 .node3       .         .        1.000     0.022      
+node6 .node4       .        1.000     1.000     0.011      
+node6 .node5       .         .        1.000     0.037      
+node6 .node6       .         .        1.000      EPS       
+node6 .node7       .         .        1.000     0.029      
+node6 .node8       .         .        1.000     0.014      
+node6 .node9       .         .        1.000     0.049      
+node6 .node10      .         .        1.000     0.021      
+node7 .node1       .         .        1.000     0.021      
+node7 .node2       .         .        1.000     0.017      
+node7 .node3       .        1.000     1.000     0.012      
+node7 .node4       .         .        1.000     0.031      
+node7 .node5       .         .        1.000     0.013      
+node7 .node6       .         .        1.000     0.029      
+node7 .node7       .         .        1.000      EPS       
+node7 .node8       .         .        1.000     0.024      
+node7 .node9       .         .        1.000     0.027      
+node7 .node10      .         .        1.000     0.024      
+node8 .node1       .         .        1.000     0.018      
+node8 .node2       .         .        1.000     0.007      
+node8 .node3       .         .        1.000     0.023      
+node8 .node4       .         .        1.000     0.008      
+node8 .node5       .         .        1.000     0.027      
+node8 .node6       .         .        1.000     0.014      
+node8 .node7       .         .        1.000     0.024      
+node8 .node8       .         .        1.000      EPS       
+node8 .node9       .        1.000     1.000     0.037      
+node8 .node10      .         .        1.000     0.029      
+node9 .node1       .         .        1.000     0.020      
+node9 .node2       .         .        1.000     0.034      
+node9 .node3       .         .        1.000     0.038      
+node9 .node4       .         .        1.000     0.045      
+node9 .node5       .        1.000     1.000     0.014      
+node9 .node6       .         .        1.000     0.049      
+node9 .node7       .         .        1.000     0.027      
+node9 .node8       .         .        1.000     0.037      
+node9 .node9       .         .        1.000      EPS       
+node9 .node10      .         .        1.000     0.050      
+node10.node1       .         .        1.000     0.039      
+node10.node2       .         .        1.000     0.023      
+node10.node3       .         .        1.000     0.012      
+node10.node4       .         .        1.000     0.031      
+node10.node5       .         .        1.000     0.036      
+node10.node6       .        1.000     1.000     0.021      
+node10.node7       .         .        1.000     0.024      
+node10.node8       .         .        1.000     0.029      
+node10.node9       .         .        1.000     0.050      
+node10.node10      .         .        1.000      EPS       
+
+---- VAR q  quantity of bikes transfered from i to j
+
+                 LOWER     LEVEL     UPPER    MARGINAL
+
+node1 .node1       .         .        +INF       EPS       
+node1 .node2       .         .        +INF       EPS       
+node1 .node3       .         .        +INF       EPS       
+node1 .node4       .         .        +INF       EPS       
+node1 .node5       .         .        +INF       EPS       
+node1 .node6       .         .        +INF       EPS       
+node1 .node7       .         .        +INF       EPS       
+node1 .node8       .        7.000     +INF       .         
+node1 .node9       .         .        +INF       EPS       
+node1 .node10      .         .        +INF       EPS       
+node2 .node1       .         .        +INF       EPS       
+node2 .node2       .         .        +INF       EPS       
+node2 .node3       .         .        +INF       EPS       
+node2 .node4       .         .        +INF       EPS       
+node2 .node5       .         .        +INF       EPS       
+node2 .node6       .         .        +INF       EPS       
+node2 .node7       .       10.000     +INF       .         
+node2 .node8       .         .        +INF       EPS       
+node2 .node9       .         .        +INF       EPS       
+node2 .node10      .         .        +INF       EPS       
+node3 .node1       .         .        +INF       EPS       
+node3 .node2       .         .        +INF       EPS       
+node3 .node3       .         .        +INF       EPS       
+node3 .node4       .         .        +INF       EPS       
+node3 .node5       .         .        +INF       EPS       
+node3 .node6       .         .        +INF       EPS       
+node3 .node7       .         .        +INF       EPS       
+node3 .node8       .         .        +INF       EPS       
+node3 .node9       .         .        +INF       EPS       
+node3 .node10      .        3.000     +INF       .         
+node4 .node1       .       11.000     +INF       .         
+node4 .node2       .         .        +INF       EPS       
+node4 .node3       .         .        +INF       EPS       
+node4 .node4       .         .        +INF       EPS       
+node4 .node5       .         .        +INF       EPS       
+node4 .node6       .         .        +INF       EPS       
+node4 .node7       .         .        +INF       EPS       
+node4 .node8       .         .        +INF       EPS       
+node4 .node9       .         .        +INF       EPS       
+node4 .node10      .         .        +INF       EPS       
+node5 .node1       .         .        +INF       EPS       
+node5 .node2       .         .        +INF       EPS       
+node5 .node3       .         .        +INF       EPS       
+node5 .node4       .         .        +INF       EPS       
+node5 .node5       .         .        +INF       EPS       
+node5 .node6       .         .        +INF       EPS       
+node5 .node7       .         .        +INF       EPS       
+node5 .node8       .         .        +INF       EPS       
+node5 .node9       .         .        +INF       EPS       
+node5 .node10      .         .        +INF       EPS       
+node6 .node1       .         .        +INF       EPS       
+node6 .node2       .         .        +INF       EPS       
+node6 .node3       .         .        +INF       EPS       
+node6 .node4       .        9.000     +INF       .         
+node6 .node5       .         .        +INF       EPS       
+node6 .node6       .         .        +INF       EPS       
+node6 .node7       .         .        +INF       EPS       
+node6 .node8       .         .        +INF       EPS       
+node6 .node9       .         .        +INF       EPS       
+node6 .node10      .         .        +INF       EPS       
+node7 .node1       .         .        +INF       EPS       
+node7 .node2       .         .        +INF       EPS       
+node7 .node3       .         .        +INF       .         
+node7 .node4       .         .        +INF       EPS       
+node7 .node5       .         .        +INF       EPS       
+node7 .node6       .         .        +INF       EPS       
+node7 .node7       .         .        +INF       EPS       
+node7 .node8       .         .        +INF       EPS       
+node7 .node9       .         .        +INF       EPS       
+node7 .node10      .         .        +INF       EPS       
+node8 .node1       .         .        +INF       EPS       
+node8 .node2       .         .        +INF       EPS       
+node8 .node3       .         .        +INF       EPS       
+node8 .node4       .         .        +INF       EPS       
+node8 .node5       .         .        +INF       EPS       
+node8 .node6       .         .        +INF       EPS       
+node8 .node7       .         .        +INF       EPS       
+node8 .node8       .         .        +INF       EPS       
+node8 .node9       .        9.000     +INF       .         
+node8 .node10      .         .        +INF       EPS       
+node9 .node1       .         .        +INF       EPS       
+node9 .node2       .         .        +INF       EPS       
+node9 .node3       .         .        +INF       EPS       
+node9 .node4       .         .        +INF       EPS       
+node9 .node5       .        8.000     +INF       .         
+node9 .node6       .         .        +INF       EPS       
+node9 .node7       .         .        +INF       EPS       
+node9 .node8       .         .        +INF       EPS       
+node9 .node9       .         .        +INF       EPS       
+node9 .node10      .         .        +INF       EPS       
+node10.node1       .         .        +INF       EPS       
+node10.node2       .         .        +INF       EPS       
+node10.node3       .         .        +INF       EPS       
+node10.node4       .         .        +INF       EPS       
+node10.node5       .         .        +INF       EPS       
+node10.node6       .        4.000     +INF       .         
+node10.node7       .         .        +INF       EPS       
+node10.node8       .         .        +INF       EPS       
+node10.node9       .         .        +INF       EPS       
+node10.node10      .         .        +INF       EPS       
+
+---- VAR u  MTZ subtour elimination
+
+          LOWER     LEVEL     UPPER    MARGINAL
+
+node2       .        4.000     +INF       .         
+node3       .        6.000     +INF       .         
+node4       .        9.000     +INF       .         
+node5       .        3.000     +INF       .         
+node6       .        8.000     +INF       .         
+node7       .        5.000     +INF       .         
+node8       .        1.000     +INF       .         
+node9       .        2.000     +INF       .         
+node10      .        7.000     +INF       .         
+
+                       LOWER     LEVEL     UPPER    MARGINAL
+
+---- VAR z              -INF      0.190     +INF       .         
+
+  z  total travel distance
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 30.1.0  re01a340 Released Jan 10, 2020 WEX-WEI x86 64bit/MS Windows 05/09/20 21:53:37 Page 6
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+E x e c u t i o n
+
+
+----     67 VARIABLE x.L  whether there are bikes transfered from i to j
+
+             node1       node2       node3       node4       node5       node6
+
+node4        1.000
+node5                    1.000
+node6                                            1.000
+node7                                1.000
+node9                                                        1.000
+node10                                                                   1.000
+
+     +       node7       node8       node9      node10
+
+node1                    1.000
+node2        1.000
+node3                                            1.000
+node8                                1.000
+
+
+----     67 VARIABLE z.L                   =        0.190  total travel distance
+
+
+EXECUTION TIME       =        0.250 SECONDS      3 MB  30.1.0 re01a340 WEX-WEI
+
+
+USER: Small MUD - 5 User License                     S200204/0001AO-WIN
+      Shanghai New York University, Information Technology ServiDC14811
+      License for teaching and research at degree granting institutions
+
+
+**** FILE SUMMARY
+
+Input      \\Client\H$\Desktop\optimization project\project.gms
+Output     \\Client\H$\Desktop\optimization project\project.lst
